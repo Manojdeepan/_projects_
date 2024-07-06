@@ -1,190 +1,157 @@
-#include <iostream>
-#include <iomanip>
-#include <map>
-#include <vector>
-#include <conio.h>
+#include<iostream>
+#include<conio.h>
+#include<cstring>
 using namespace std;
 
-struct User {
-    string name;
-    string pin;
-    double balance;
-    vector<string> transactionHistory;
+// Features of ATM Mini Project
+// 1. User can Check the balance
+// 2. User can withdraw cash
+// 3. Users details 
+// 4. Update Mobile Phone Number
+
+// Class for ATM
+class ATM
+{
+    private:
+        long int acc_num;
+        string name;
+        int pin;
+        double balance;
+        string mobile;
+    public:
+        void setData(long int acc_num, string name, int pin, double balance, string mobile){
+            this->acc_num = acc_num;
+            this->name = name;
+            this->pin = pin;
+            this->balance = balance;
+            this->mobile = mobile;
+        }
+        long int getAccNum(){
+            return this->acc_num;
+        }
+        string getName(){
+            return this->name;
+        }
+        int getPin(){
+            return this->pin;
+        }
+        double getBalance(){
+            return this->balance;
+        }
+        string getMobile(){
+            return this->mobile;
+        }
+
+        void checkBalance(){
+            cout << "Your Balance is: " << this->balance << endl;
+            _getch();
+        }
+        void withdrawCash(double amount){
+            if(amount > 0 && amount <= this->balance){
+                this->balance -= amount;
+                cout << "Please collect your cash" << endl;
+                cout << "Your Remaining Balance is: " << this->balance << endl;
+                _getch();
+            }
+            else{
+                cout << "Invalid or Insufficient Amount" << endl;
+                _getch();
+            }
+        }
+        void ViewDetails(){
+            cout << "Account Number: " << this->acc_num << endl;
+            cout << "Name: " << this->name << endl;
+            cout << "Balance: " << this->balance << endl;
+            cout << "Mobile Number: " << this->mobile << endl;
+            _getch();
+        }
+        void updateMobile(string old_mobile, string new_mobile){
+            if(old_mobile == this->mobile){
+                cout << "Enter New Mobile Number: ";
+                cin >> new_mobile;
+                this->mobile = new_mobile;
+                cout << "Mobile Number Updated Successfully" << endl;
+                _getch();
+            }
+            else{
+                cout << "Invalid Mobile Number" << endl;
+                _getch();
+            }
+        }
+
+
 };
 
-class ATM {
-private:
-    map<string, User> users;
-    User* currentUser;
-public:
-    ATM() : currentUser(nullptr) {}
 
-    void createUser(string name, string pin, double initialBalance) {
-        string accountNumber = generateAccountNumber();
-        users[accountNumber] = {name, pin, initialBalance, {}};
-        if (currentUser == nullptr) {
-            currentUser = &users[accountNumber];
-        }
-    }
 
-    bool login(string accountNumber, string pin) {
-        auto user = users.find(accountNumber);
-        if (user != users.end() && user->second.pin == pin) {
-            currentUser = &user->second;
-            cout << "Welcome " << currentUser->name << "!" << endl;
-            return true;
-        }
-        cout << "Invalid account number or PIN. Please try again." << endl;
-        return false;
-    }
+int main()
+{
+    int choice, account_num;
+    int pin;
+    double amount;
+    string old_mob, new_mob;
 
-    void checkBalance() {
-        cout << "Current Balance: Rs." << fixed << setprecision(2) << currentUser->balance << endl;
-    }
-
-    void deposit(double amount) {
-        currentUser->balance += amount;
-        string transaction = "Deposited Rs." + to_string(amount);
-        currentUser->transactionHistory.push_back(transaction);
-        cout << endl;
-        cout << transaction << " successfully." << endl << "Current Balance: Rs." << fixed << setprecision(2) << currentUser->balance << endl;
-    }
-
-    void withdraw(double amount) {
-        if (amount <= currentUser->balance) {
-            currentUser->balance -= amount;
-            string transaction = "Withdrawn Rs." + to_string(amount);
-            currentUser->transactionHistory.push_back(transaction);
-            cout << endl;
-            cout << transaction << " successfully." << endl << "Current Balance: Rs." << fixed << setprecision(2) << currentUser->balance << endl;
-        } else {
-            cout << "Insufficient funds." << endl;
-        }
-    }
-
-    void transfer(string recipientAccount, double amount) {
-        auto recipientUser = users.find(recipientAccount);
-        if (recipientUser != users.end()) {
-            if (recipientAccount != getCurrentAccountNumber()) {
-                if (amount <= currentUser->balance) {
-                    currentUser->balance -= amount;
-                    recipientUser->second.balance += amount;
-                    string transaction = "Transferred Rs." + to_string(amount) + " to " + recipientUser->second.name;
-                    currentUser->transactionHistory.push_back(transaction);
-                    cout << endl;
-                    cout << transaction << " successfully." << endl;
-                } else {
-                    cout << "Insufficient funds." << endl;
-                }
-            } else {
-                cout << "Cannot transfer funds to your own account." << endl;
-            }
-        } else {
-            cout << "Recipient account not found." << endl;
-        }
-    }
-
-    void printTransactionHistory() {
-        cout << endl;
-        cout << "TRANSACTION HISTORY:" << endl;
-        for (const auto& transaction : currentUser->transactionHistory) {
-            cout << transaction << endl;
-        }
-    }
-
-private:
-    string generateAccountNumber() {
-        static int nextAccountNumber = 1;
-        return "ACC" + to_string(nextAccountNumber++);
-    }
-
-    string getCurrentAccountNumber() {
-        for (const auto& pair : users) {
-            if (&pair.second == currentUser) {
-                return pair.first;
-            }
-        }
-        return "";
-    }
-};
-
-string getHiddenPIN() {
-    string pin;
-    char ch;
-    while ((ch = _getch()) != '\r') {
-        if (ch == '\b') {
-            if (!pin.empty()) {
-                cout << "\b \b";
-                pin.pop_back();
-            }
-        } else {
-            pin.push_back(ch);
-            cout << '*';
-        }
-    }
-    cout << endl;
-    return pin;
-}
-
-int main() {
-    ATM atm;
-    atm.createUser("Vinayak Mahadev", "1234", 1000.0);
-    atm.createUser("Prithvi Raj", "5678", 500.0);
-    string accountNumber, pin;
-    cout << "Enter account number: ";
-    cin >> accountNumber;
-    cout << "Enter PIN: ";
-    pin = getHiddenPIN();
-    if (atm.login(accountNumber, pin)) {
-        int choice;
-        do {
-            cout << "\n===== ATM Menu =====" << endl;
-            cout << "1. Check Balance" << endl;
-            cout << "2. Deposit" << endl;
-            cout << "3. Withdraw" << endl;
-            cout << "4. Transfer Funds" << endl;
-            cout << "5. View Transaction History" << endl;
-            cout << "6. Logout" << endl;
-            cout << "Enter your choice: ";
-            cin >> choice;
-            switch (choice) {
+    ATM user1;
+    user1.setData(123456789, "Mubashar", 123, 10000, "03087031050");
+    do
+    {
+        system("cls");
+        cout << "**********Welcome to ATM**********" << endl;
+        cout<< "Enter Account Number: ";
+        cin >> account_num;
+        cout << "Enter Pin: ";
+        cin >> pin;
+        if(account_num == user1.getAccNum() && pin == user1.getPin()){
+            do
+            {
+                system("cls");
+                cout << "==========Welcome Back " << user1.getName()<< "==========" << endl;
+                cout << "1. Check Balance" << endl;
+                cout << "2. Withdraw Cash" << endl;
+                cout << "3. View Details" << endl;
+                cout << "4. Update Mobile Number" << endl;
+                cout << "5. Exit" << endl;
+                cout << "Enter your choice: ";
+                cin >> choice;
+                switch (choice)
+                {
                 case 1:
-                    atm.checkBalance();
+                    user1.checkBalance();
+                    _getch();
                     break;
-                case 2: {
-                    double amount;
-                    cout << "Enter amount to deposit: Rs.";
+                case 2:
+                    cout << "Enter Amount: ";
                     cin >> amount;
-                    atm.deposit(amount);
+                    user1.withdrawCash(amount);
+                    _getch();
                     break;
-                }
-                case 3: {
-                    double amount;
-                    cout << "Enter amount to withdraw: Rs.";
-                    cin >> amount;
-                    atm.withdraw(amount);
+                case 3:
+                    user1.ViewDetails();
+                    _getch();
                     break;
-                }
-                case 4: {
-                    string recipientAccount;
-                    double amount;
-                    cout << "Enter recipient's account number: ";
-                    cin >> recipientAccount;
-                    cout << "Enter amount to transfer: Rs.";
-                    cin >> amount;
-                    atm.transfer(recipientAccount, amount);
+                case 4:
+                    cout << "Enter Old Mobile Number: ";
+                    cin >> old_mob;
+                    user1.updateMobile(old_mob, new_mob);
+                    _getch();
                     break;
-                }
                 case 5:
-                    atm.printTransactionHistory();
-                    break;
-                case 6:
-                    cout << endl;
-                    cout << "Thank You! Visit Again :)" << endl;
+                    exit(0);
                     break;
                 default:
-                    cout << "Invalid choice. Please try again." << endl;
-            }
-        } while (choice != 6);
-    }
+                    cout << "Invalid Choice" << endl;
+                    _getch();
+                    break;
+                }
+            } while (choice != 5);
+        }
+        else{
+            cout << "Invalid Account Number or Pin" << endl;
+            _getch();
+        }
+
+    } while (1);
+    
+
+ return 0;
 }
