@@ -81,7 +81,7 @@ During combat:
 ## File Structure
 
 ```
-adventure_rpg/
+Adventure_RPG/
 ├── adventure_rpg.cpp      # Main game source code
 └── README.md              # Project documentation
 
