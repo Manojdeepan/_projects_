@@ -10,8 +10,7 @@ using namespace std;
 
 /*
     created by
-        1. arezyh.s
-        2. shylniac
+        ManojDeepan M
 */
 
 // Player class.
@@ -372,6 +371,7 @@ int main() {
     }
     return 0;
 }
+
 
 
 
